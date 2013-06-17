@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 import oauth2 as oauth
+import json
+import os
+import os.path
 from urlparse import parse_qsl
-from os.path import expanduser
 from sys import exit
 
 consumer_key = 'I5Qy02p5CrIXw8Sa9ohw'
@@ -59,19 +61,37 @@ def get_access_token_from_twitter():
     return access_token
 
 def fetch_tweets(access_token):
+    global consumer
     token = oauth.Token(access_token['oauth_token'], access_token['oauth_token_secret'])
     client = oauth.Client(consumer, token);
     print client.request('https://api.twitter.com/1.1/statuses/home_timeline.json?count=200')
 
 def save_access_token(token):
-    pass
+    token_directory = os.path.dirname(get_access_token_file_path());
+    if not os.path.exists(token_directory):
+        os.makedirs(token_directory)
+    dumped_token = json.dumps(token)
+    with open(get_access_token_file_path(), 'w') as file:
+        file.write(dumped_token)
 
 def load_access_token():
-    pass
+    try:
+        with open(get_access_token_file_path(), 'r') as file:
+            access_token = json.load(file)
+        return access_token
+    except IOError:
+        return None
 
 def get_access_token_file_path():
-    return expanduser('~/.config/twitter-backup.py/access-token.json')
+    return os.path.expanduser('~/.config/twitter-backup.py/access-token.json')
+
+# Main program
 
 consumer = oauth.Consumer(consumer_key, consumer_secret)
-access_token = get_access_token_from_twitter()
+
+access_token = load_access_token()
+if access_token == None:
+    access_token = get_access_token_from_twitter()
+    save_access_token(access_token)
+
 fetch_tweets(access_token)
