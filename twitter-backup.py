@@ -72,6 +72,12 @@ def fetch_tweets(access_token):
     tweets = json.load(StringIO(response_body))
     return tweets
 
+def get_earliest_tweet_id(tweets):
+    id = None
+    for tweet in tweets:
+        id = tweet['id']
+    return id
+
 def save_json(json_object, filepath):
     json_string = json.dumps(json_object, indent=4)
     with open(filepath, 'w') as file:
@@ -107,3 +113,4 @@ if access_token == None:
 
 tweets = fetch_tweets(access_token)
 save_json(tweets, 'tweets.json')
+print get_earliest_tweet_id(tweets)
