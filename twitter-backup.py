@@ -8,6 +8,9 @@ import oauth2 as oauth
 from StringIO import StringIO
 from urlparse import parse_qsl
 
+# Please don't use this key and secret in your script.
+# You can request your own at https://dev.twitter.com/apps/new
+# (If you fork my repo to merely submit a pull request then you don't need to change this.)
 consumer_key = 'I5Qy02p5CrIXw8Sa9ohw'
 consumer_secret = 'ubG7dkIS6g2cjYshXM6gtN6dSZEekKTRZMKgjYIv4'
 
