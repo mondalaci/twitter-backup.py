@@ -64,10 +64,11 @@ def get_access_token_from_twitter():
 
     return access_token
 
-def fetch_tweets(access_token):
+def fetch_tweets(access_token, max_id=None):
     token = oauth.Token(access_token['oauth_token'], access_token['oauth_token_secret'])
     client = oauth.Client(consumer, token);
-    response = client.request('https://api.twitter.com/1.1/statuses/user_timeline.json?count=200')
+    max_id = '' if max_id==None else '&max_id='+str(max_id)
+    response = client.request('https://api.twitter.com/1.1/statuses/user_timeline.json?count=200'+max_id)
     response_headers, response_body = response
     tweets = json.load(StringIO(response_body))
     return tweets
@@ -111,6 +112,13 @@ if access_token == None:
     access_token = get_access_token_from_twitter()
     save_access_token(access_token)
 
-tweets = fetch_tweets(access_token)
-save_json(tweets, 'tweets.json')
-print get_earliest_tweet_id(tweets)
+earliest_tweet_id = None
+page_number = 1
+while True:
+    tweets = fetch_tweets(access_token, earliest_tweet_id)
+    if len(tweets) < 200:
+        break;
+    print 'Saving page ' + str(page_number)
+    save_json(tweets, str(page_number)+'.json')
+    earliest_tweet_id = get_earliest_tweet_id(tweets)
+    page_number += 1
