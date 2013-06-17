@@ -14,7 +14,7 @@ from urlparse import parse_qsl
 consumer_key = 'I5Qy02p5CrIXw8Sa9ohw'
 consumer_secret = 'ubG7dkIS6g2cjYshXM6gtN6dSZEekKTRZMKgjYIv4'
 
-max_tweets_per_request = 200;
+max_tweets_per_request = 200
 
 def get_access_token_from_twitter():
     # Taken from https://github.com/simplegeo/python-oauth2#twitter-three-legged-oauth-example
@@ -68,7 +68,7 @@ def get_access_token_from_twitter():
 
 def fetch_tweets(access_token, max_id=None):
     token = oauth.Token(access_token['oauth_token'], access_token['oauth_token_secret'])
-    client = oauth.Client(consumer, token);
+    client = oauth.Client(consumer, token)
     max_id = '' if max_id==None else '&max_id='+str(max_id)
     response = client.request('https://api.twitter.com/1.1/statuses/user_timeline.json?count=%d%s' % (max_tweets_per_request, max_id))
     response_headers, response_body = response
@@ -87,7 +87,7 @@ def save_json(json_object, filepath):
         file.write(json_string)
 
 def save_access_token(token):
-    token_directory = os.path.dirname(get_access_token_file_path());
+    token_directory = os.path.dirname(get_access_token_file_path())
     if not os.path.exists(token_directory):
         os.makedirs(token_directory)
     dumped_token = json.dumps(token)
@@ -116,11 +116,18 @@ if access_token == None:
 
 earliest_tweet_id = None
 page_number = 1
+tweet_index = 0
+
 while True:
     tweets = fetch_tweets(access_token, earliest_tweet_id)
+
+    if len(tweets) > 0:
+        dest_filename = '%d.json' % (page_number)
+        print 'Saving tweet %d to %d as %s' % (tweet_index, tweet_index+len(tweets), dest_filename)
+        save_json(tweets, dest_filename)
+        earliest_tweet_id = get_earliest_tweet_id(tweets)
+        page_number += 1
+        tweet_index += len(tweets)
+
     if len(tweets) < max_tweets_per_request:
-        break;
-    print 'Saving page ' + str(page_number)
-    save_json(tweets, str(page_number)+'.json')
-    earliest_tweet_id = get_earliest_tweet_id(tweets)
-    page_number += 1
+        break
