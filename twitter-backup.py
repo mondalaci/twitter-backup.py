@@ -2,7 +2,7 @@
 
 import os
 import os.path
-from sys import exit
+from sys import exit, argv
 import json
 import oauth2 as oauth
 from StringIO import StringIO
@@ -67,11 +67,14 @@ def get_access_token_from_twitter():
 
     return access_token
 
-def fetch_tweets(access_token, max_id=None):
+def fetch_tweets(access_token, screen_name, max_id=None):
     token = oauth.Token(access_token['oauth_token'], access_token['oauth_token_secret'])
     client = oauth.Client(consumer, token)
+    screen_name = '' if screen_name==None else '&screen_name='+screen_name
     max_id = '' if max_id==None else '&max_id='+str(max_id)
-    response = client.request('https://api.twitter.com/1.1/statuses/user_timeline.json?count=%d%s' % (max_tweets_per_request, max_id))
+    request_url = 'https://api.twitter.com/1.1/statuses/user_timeline.json?count=%d%s%s' % \
+                  (max_tweets_per_request, screen_name, max_id)
+    response = client.request(request_url)
     response_headers, response_body = response
     tweets = json.load(StringIO(response_body))
     return tweets
@@ -82,7 +85,7 @@ def get_earliest_tweet_id(tweets):
         id = tweet['id']
     return id
 
-def save_json(json_object, filepath):
+def save_tweets(json_object, filepath):
     json_string = json.dumps(json_object, indent=4)
     with open(filepath, 'w') as file:
         file.write(json_string)
@@ -106,7 +109,21 @@ def load_access_token():
 def get_access_token_file_path():
     return os.path.expanduser(access_token_filepath)
 
+def print_help():
+    print 'Usage: %s [SCREEN-NAME] | -h | --help' % (argv[0])
+    print 'Fetch the tweets of SCREEN-NAME'
+    print 'SCREEN-NAME is optional and defaults to the sceen name of the authorizing user'
+
 # Main program
+
+if len(argv) >= 2:
+    if argv[1] in ['-h', '--help']:
+        print_help()
+        exit(0)
+    else:
+        screen_name = argv[1]
+else:
+    screen_name = None
 
 consumer = oauth.Consumer(consumer_key, consumer_secret)
 
@@ -120,12 +137,12 @@ page_number = 1
 tweet_index = 0
 
 while True:
-    tweets = fetch_tweets(access_token, earliest_tweet_id)
+    tweets = fetch_tweets(access_token, screen_name, earliest_tweet_id)
 
     if len(tweets) > 0:
         dest_filename = '%02d.json' % (page_number)
         print 'Saving tweet %d to %d as %s' % (tweet_index, tweet_index+len(tweets), dest_filename)
-        save_json(tweets, dest_filename)
+        save_tweets(tweets, dest_filename)
         earliest_tweet_id = get_earliest_tweet_id(tweets)
         page_number += 1
         tweet_index += len(tweets)
