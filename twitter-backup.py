@@ -64,7 +64,7 @@ def get_access_token_from_twitter():
 def fetch_tweets(access_token):
     token = oauth.Token(access_token['oauth_token'], access_token['oauth_token_secret'])
     client = oauth.Client(consumer, token);
-    response = client.request('https://api.twitter.com/1.1/statuses/home_timeline.json?count=200')
+    response = client.request('https://api.twitter.com/1.1/statuses/user_timeline.json?count=200')
     response_headers, response_body = response
     tweets = json.load(StringIO(response_body))
     return tweets
