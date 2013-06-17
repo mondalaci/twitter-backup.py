@@ -15,6 +15,7 @@ consumer_key = 'I5Qy02p5CrIXw8Sa9ohw'
 consumer_secret = 'ubG7dkIS6g2cjYshXM6gtN6dSZEekKTRZMKgjYIv4'
 
 max_tweets_per_request = 200
+access_token_filepath = '~/.config/twitter-backup.py/access-token.json'
 
 def get_access_token_from_twitter():
     # Taken from https://github.com/simplegeo/python-oauth2#twitter-three-legged-oauth-example
@@ -103,7 +104,7 @@ def load_access_token():
         return None
 
 def get_access_token_file_path():
-    return os.path.expanduser('~/.config/twitter-backup.py/access-token.json')
+    return os.path.expanduser(access_token_filepath)
 
 # Main program
 
