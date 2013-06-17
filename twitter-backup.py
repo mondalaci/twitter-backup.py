@@ -122,7 +122,7 @@ while True:
     tweets = fetch_tweets(access_token, earliest_tweet_id)
 
     if len(tweets) > 0:
-        dest_filename = '%d.json' % (page_number)
+        dest_filename = '%02d.json' % (page_number)
         print 'Saving tweet %d to %d as %s' % (tweet_index, tweet_index+len(tweets), dest_filename)
         save_json(tweets, dest_filename)
         earliest_tweet_id = get_earliest_tweet_id(tweets)
