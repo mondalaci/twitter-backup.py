@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
-import oauth2 as oauth
-import json
 import os
 import os.path
-from urlparse import parse_qsl
 from sys import exit
+import json
+import oauth2 as oauth
+from StringIO import StringIO
+from urlparse import parse_qsl
 
 consumer_key = 'I5Qy02p5CrIXw8Sa9ohw'
 consumer_secret = 'ubG7dkIS6g2cjYshXM6gtN6dSZEekKTRZMKgjYIv4'
@@ -61,10 +62,17 @@ def get_access_token_from_twitter():
     return access_token
 
 def fetch_tweets(access_token):
-    global consumer
     token = oauth.Token(access_token['oauth_token'], access_token['oauth_token_secret'])
     client = oauth.Client(consumer, token);
-    print client.request('https://api.twitter.com/1.1/statuses/home_timeline.json?count=200')
+    response = client.request('https://api.twitter.com/1.1/statuses/home_timeline.json?count=200')
+    response_headers, response_body = response
+    tweets = json.load(StringIO(response_body))
+    return tweets
+
+def save_json(json_object, filepath):
+    json_string = json.dumps(json_object, indent=4)
+    with open(filepath, 'w') as file:
+        file.write(json_string)
 
 def save_access_token(token):
     token_directory = os.path.dirname(get_access_token_file_path());
@@ -94,4 +102,5 @@ if access_token == None:
     access_token = get_access_token_from_twitter()
     save_access_token(access_token)
 
-fetch_tweets(access_token)
+tweets = fetch_tweets(access_token)
+save_json(tweets, 'tweets.json')
