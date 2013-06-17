@@ -5,6 +5,12 @@ The simplest command line Twitter backup utility ever that actually works!
 
 ```
 $ sudo apt-get install python-oauth2
+
+$ ./twitter-backup.py --help
+Usage: /home/laci/bin/twitter-backup.py [SCREEN-NAME] | -h | --help
+Fetch the tweets of SCREEN-NAME
+SCREEN-NAME is optional and defaults to the sceen name of the authorizing user
+
 $ ./twitter-backup.py
 Visit https://api.twitter.com/oauth/authorize?oauth_token=qlNywwWbujrGuyWA4M5JyD621QBOnwWmjScYnnPMcu4
 What is the PIN? 6844096
